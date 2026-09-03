@@ -1,0 +1,23 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+    <Folder Name="/src/">
+        <Project Path="src/Ieh.OwneyBeauty.Domain/Ieh.OwneyBeauty.Domain.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.Application/Ieh.OwneyBeauty.Application.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.EntityFrameworkCore/Ieh.OwneyBeauty.EntityFrameworkCore.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.Domain.Shared/Ieh.OwneyBeauty.Domain.Shared.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.Application.Contracts/Ieh.OwneyBeauty.Application.Contracts.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.HttpApi/Ieh.OwneyBeauty.HttpApi.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.HttpApi.Client/Ieh.OwneyBeauty.HttpApi.Client.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.HttpApi.Host/Ieh.OwneyBeauty.HttpApi.Host.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.DbMigrator/Ieh.OwneyBeauty.DbMigrator.csproj" />
+    </Folder>
+    <Folder Name="/test/">
+        <Project Path="test/Ieh.OwneyBeauty.Application.Tests/Ieh.OwneyBeauty.Application.Tests.csproj" />
+        <Project Path="test/Ieh.OwneyBeauty.EntityFrameworkCore.Tests/Ieh.OwneyBeauty.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test/Ieh.OwneyBeauty.TestBase/Ieh.OwneyBeauty.TestBase.csproj" />
+        <Project Path="test/Ieh.OwneyBeauty.Domain.Tests/Ieh.OwneyBeauty.Domain.Tests.csproj" />
+        <Project Path="test/Ieh.OwneyBeauty.HttpApi.Client.ConsoleTestApp/Ieh.OwneyBeauty.HttpApi.Client.ConsoleTestApp.csproj" />
+    </Folder>
+</Solution>

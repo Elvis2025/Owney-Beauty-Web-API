@@ -1,0 +1,114 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "5.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.Account": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.Identity": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    },
+    "Volo.Abp.BlobStoring.Database": {
+      "version": "10.6.0",
+      "isInstalled": true,
+      "creationTime": "09/03/2026 01:09:11 +00:00"
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Ieh.OwneyBeauty.Application": {
+      "path": "src/Ieh.OwneyBeauty.Application/Ieh.OwneyBeauty.Application.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.Application.Tests": {
+      "path": "test/Ieh.OwneyBeauty.Application.Tests/Ieh.OwneyBeauty.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ieh.OwneyBeauty.Domain.Shared": {
+      "path": "src/Ieh.OwneyBeauty.Domain.Shared/Ieh.OwneyBeauty.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.Application.Contracts": {
+      "path": "src/Ieh.OwneyBeauty.Application.Contracts/Ieh.OwneyBeauty.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.HttpApi": {
+      "path": "src/Ieh.OwneyBeauty.HttpApi/Ieh.OwneyBeauty.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.HttpApi.Client": {
+      "path": "src/Ieh.OwneyBeauty.HttpApi.Client/Ieh.OwneyBeauty.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.EntityFrameworkCore.Tests": {
+      "path": "test/Ieh.OwneyBeauty.EntityFrameworkCore.Tests/Ieh.OwneyBeauty.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ieh.OwneyBeauty.EntityFrameworkCore": {
+      "path": "src/Ieh.OwneyBeauty.EntityFrameworkCore/Ieh.OwneyBeauty.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.TestBase": {
+      "path": "test/Ieh.OwneyBeauty.TestBase/Ieh.OwneyBeauty.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Ieh.OwneyBeauty.Domain.Tests": {
+      "path": "test/Ieh.OwneyBeauty.Domain.Tests/Ieh.OwneyBeauty.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ieh.OwneyBeauty.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/Ieh.OwneyBeauty.HttpApi.Client.ConsoleTestApp/Ieh.OwneyBeauty.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "Ieh.OwneyBeauty.DbMigrator": {
+      "path": "src/Ieh.OwneyBeauty.DbMigrator/Ieh.OwneyBeauty.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.HttpApi.Host": {
+      "path": "src/Ieh.OwneyBeauty.HttpApi.Host/Ieh.OwneyBeauty.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "Ieh.OwneyBeauty.Domain": {
+      "path": "src/Ieh.OwneyBeauty.Domain/Ieh.OwneyBeauty.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
