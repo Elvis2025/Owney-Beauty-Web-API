@@ -1,4 +1,4 @@
-﻿namespace Ieh.OwneyBeauty.MultiTenancy;
+namespace Ieh.OwneyBeauty.MultiTenancy;
 
 public static class MultiTenancyConsts
 {
@@ -6,5 +6,5 @@ public static class MultiTenancyConsts
      * If you will never need to multi-tenancy, you can remove
      * related modules and code parts, including this file.
      */
-    public const bool IsEnabled = true;
+    public const bool IsEnabled = false; // ADR-02: un salón es una entidad del marketplace, no un tenant.
 }

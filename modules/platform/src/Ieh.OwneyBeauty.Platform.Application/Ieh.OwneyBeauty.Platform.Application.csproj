@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../../common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Ieh.OwneyBeauty.Platform.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Ieh.OwneyBeauty.Platform.Domain/Ieh.OwneyBeauty.Platform.Domain.csproj" />
+    <ProjectReference Include="../Ieh.OwneyBeauty.Platform.Application.Contracts/Ieh.OwneyBeauty.Platform.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Ddd.Application" Version="10.6.0" />
+    <PackageReference Include="Volo.Abp.Mapperly" Version="10.6.0" />
+  </ItemGroup>
+
+</Project>

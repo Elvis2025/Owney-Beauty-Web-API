@@ -25,13 +25,33 @@ public class OpenIddictDataSeedContributor : OpenIddictDataSeedContributorBase, 
         IOpenIddictScopeManager scopeManager)
         : base(configuration, openIddictApplicationRepository, applicationManager, openIddictScopeRepository, scopeManager)
     {
+        _applicationManager = applicationManager;
     }
+
+    private readonly IAbpApplicationManager _applicationManager;
 
     [UnitOfWork]
     public virtual async Task SeedAsync(DataSeedContext context)
     {
         await CreateScopesAsync();
         await CreateApplicationsAsync();
+    }
+
+    /// <summary>Exige PKCE al cliente público (un código de autorización robado no sirve sin el verificador).</summary>
+    private async Task RequirePkceAsync(string clientId)
+    {
+        var application = await _applicationManager.FindByClientIdAsync(clientId);
+        if (application is null)
+        {
+            return;
+        }
+
+        var descriptor = new AbpApplicationDescriptor();
+        await _applicationManager.PopulateAsync(descriptor, application);
+        if (descriptor.Requirements.Add(OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange))
+        {
+            await _applicationManager.UpdateAsync(application, descriptor);
+        }
     }
 
     private async Task CreateScopesAsync()
@@ -52,46 +72,53 @@ public class OpenIddictDataSeedContributor : OpenIddictDataSeedContributorBase, 
             OpenIddictConstants.Permissions.Scopes.Phone,
             OpenIddictConstants.Permissions.Scopes.Profile,
             OpenIddictConstants.Permissions.Scopes.Roles,
+            OpenIddictConstants.Permissions.Prefixes.Scope + OpenIddictConstants.Scopes.OfflineAccess,
             "OwneyBeauty"
         };
 
         var configurationSection = Configuration.GetSection("OpenIddict:Applications");
 
 
-        // Console Test / Angular Client
-        
+        // Cliente público de Owney (web Angular y apps móviles) — ACC-F04.
+        // Flujo recomendado: Authorization Code + PKCE (obligatorio). El password grant queda solo
+        // como transición para el login actual y se desactiva con OpenIddict:Applications:OwneyBeauty_App:AllowPasswordFlow=false.
         var appClientId = configurationSection["OwneyBeauty_App:ClientId"];
         if (!appClientId.IsNullOrWhiteSpace())
         {
             var appClientRootUrl = configurationSection["OwneyBeauty_App:RootUrl"]?.TrimEnd('/');
+            var extraRedirects = (configurationSection["OwneyBeauty_App:ExtraRedirectUris"] ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var redirectUris = new List<string> { appClientRootUrl! };
+            redirectUris.AddRange(extraRedirects);
+
+            var grantTypes = new List<string>
+            {
+                OpenIddictConstants.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.GrantTypes.RefreshToken,
+            };
+
+            if (bool.TryParse(configurationSection["OwneyBeauty_App:AllowPasswordFlow"], out var allowPassword) && allowPassword)
+            {
+                grantTypes.Add(OpenIddictConstants.GrantTypes.Password);
+            }
+
             await CreateOrUpdateApplicationAsync(
                 applicationType: OpenIddictConstants.ApplicationTypes.Web,
                 name: appClientId!,
                 type: OpenIddictConstants.ClientTypes.Public,
                 consentType: OpenIddictConstants.ConsentTypes.Implicit,
-                displayName: "Console Test / Angular Application",
+                displayName: "Owney Beauty App",
                 secret: null,
-                grantTypes: new List<string> {
-                    OpenIddictConstants.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.GrantTypes.Password,
-                    OpenIddictConstants.GrantTypes.ClientCredentials,
-                    OpenIddictConstants.GrantTypes.RefreshToken,
-                    "LinkLogin",
-                    "Impersonation"
-                },
+                grantTypes: grantTypes,
                 scopes: commonScopes,
-                redirectUris: new List<string> { appClientRootUrl },
-                postLogoutRedirectUris: new List<string> { appClientRootUrl },
+                redirectUris: redirectUris,
+                postLogoutRedirectUris: redirectUris,
                 clientUri: appClientRootUrl,
                 logoUri: "/images/clients/angular.svg"
             );
+
+            await RequirePkceAsync(appClientId!);
         }
-
-        
-        
-
-
-
 
         // Swagger Client
         var swaggerClientId = configurationSection["OwneyBeauty_Swagger:ClientId"];

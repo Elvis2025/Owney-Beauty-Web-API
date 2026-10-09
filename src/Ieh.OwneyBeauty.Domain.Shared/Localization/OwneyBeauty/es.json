@@ -1,10 +1,9 @@
 {
   "culture": "es",
   "texts": {
-    "AppName": "OwneyBeauty",
+    "AppName": "Owney Beauty",
     "Menu:Home": "Hogar",
     "Menu:ContactUs": "Contáctenos",
-    "Menu:ArticleSample": "Muestra de artículo",
     "Home": "Hogar",
     "Welcome": "Bienvenido",
     "LongWelcomeMessage": "Bienvenido a la aplicacion. Este es un proyecto de inicio basado en el marco ABP. Para obtener mas informacion, visite",
@@ -65,6 +64,8 @@
     "Login.RecoveryTitle": "Recuperar acceso",
     "Login.RecoveryMessage": "Te dirigiremos al proceso seguro de recuperación de contraseña.",
     "Login.Continue": "Continuar",
-    "Login.Cancel": "Cancelar"
+    "Login.Cancel": "Cancelar",
+    "Permission:OwneyBeauty": "Owney Beauty",
+    "Menu:OwneyBeauty": "Owney Beauty"
   }
 }

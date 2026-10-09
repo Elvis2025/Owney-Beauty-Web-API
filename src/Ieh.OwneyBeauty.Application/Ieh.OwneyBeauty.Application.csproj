@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
 
@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Application/Ieh.OwneyBeauty.Platform.Application.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application/Ieh.OwneyBeauty.Accounts.Application.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.Domain\Ieh.OwneyBeauty.Domain.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.Application.Contracts\Ieh.OwneyBeauty.Application.Contracts.csproj" />
   </ItemGroup>
@@ -20,7 +22,6 @@
     <PackageReference Include="Volo.Abp.Account.Application" Version="10.6.0" />
     <PackageReference Include="Volo.Abp.Identity.Application" Version="10.6.0" />
     <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="10.6.0" />
-    <PackageReference Include="MiniExcel" Version="1.41.4" />
   </ItemGroup>
 
 </Project>

@@ -1,3 +1,5 @@
+using Ieh.OwneyBeauty.Accounts;
+using Ieh.OwneyBeauty.Platform;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ieh.OwneyBeauty.Localization;
@@ -18,6 +20,7 @@ using Volo.Abp.Emailing;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.TenantManagement;
+using Volo.Abp.Timing;
 
 namespace Ieh.OwneyBeauty;
 
@@ -34,7 +37,10 @@ namespace Ieh.OwneyBeauty;
     typeof(AbpIdentityDomainModule),
     typeof(AbpOpenIddictDomainModule),
     typeof(AbpTenantManagementDomainModule),
-    typeof(BlobStoringDatabaseDomainModule)    )]
+    typeof(BlobStoringDatabaseDomainModule),
+    typeof(PlatformDomainModule),
+    typeof(AccountsDomainModule)
+    )]
 public class OwneyBeautyDomainModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
@@ -42,6 +48,12 @@ public class OwneyBeautyDomainModule : AbpModule
         Configure<AbpMultiTenancyOptions>(options =>
         {
             options.IsEnabled = MultiTenancyConsts.IsEnabled;
+        });
+
+        // ADR-06: todas las fechas se manejan en UTC; la UI convierte a la zona del usuario.
+        Configure<AbpClockOptions>(options =>
+        {
+            options.Kind = DateTimeKind.Utc;
         });
 
 

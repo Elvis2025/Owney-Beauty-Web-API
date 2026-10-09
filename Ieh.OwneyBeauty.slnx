@@ -2,6 +2,23 @@
     <Configurations>
         <Platform Name="Any CPU" />
     </Configurations>
+    <Folder Name="/shared/">
+        <Project Path="shared/Ieh.OwneyBeauty.SharedKernel/Ieh.OwneyBeauty.SharedKernel.csproj" />
+    </Folder>
+    <Folder Name="/modules/platform/">
+        <Project Path="modules/platform/src/Ieh.OwneyBeauty.Platform.Domain.Shared/Ieh.OwneyBeauty.Platform.Domain.Shared.csproj" />
+        <Project Path="modules/platform/src/Ieh.OwneyBeauty.Platform.Domain/Ieh.OwneyBeauty.Platform.Domain.csproj" />
+        <Project Path="modules/platform/src/Ieh.OwneyBeauty.Platform.Application.Contracts/Ieh.OwneyBeauty.Platform.Application.Contracts.csproj" />
+        <Project Path="modules/platform/src/Ieh.OwneyBeauty.Platform.Application/Ieh.OwneyBeauty.Platform.Application.csproj" />
+        <Project Path="modules/platform/src/Ieh.OwneyBeauty.Platform.EntityFrameworkCore/Ieh.OwneyBeauty.Platform.EntityFrameworkCore.csproj" />
+    </Folder>
+    <Folder Name="/modules/accounts/">
+        <Project Path="modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain.Shared/Ieh.OwneyBeauty.Accounts.Domain.Shared.csproj" />
+        <Project Path="modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain/Ieh.OwneyBeauty.Accounts.Domain.csproj" />
+        <Project Path="modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application.Contracts/Ieh.OwneyBeauty.Accounts.Application.Contracts.csproj" />
+        <Project Path="modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application/Ieh.OwneyBeauty.Accounts.Application.csproj" />
+        <Project Path="modules/accounts/src/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore.csproj" />
+    </Folder>
     <Folder Name="/src/">
         <Project Path="src/Ieh.OwneyBeauty.Domain/Ieh.OwneyBeauty.Domain.csproj" />
         <Project Path="src/Ieh.OwneyBeauty.Application/Ieh.OwneyBeauty.Application.csproj" />
@@ -10,10 +27,13 @@
         <Project Path="src/Ieh.OwneyBeauty.Application.Contracts/Ieh.OwneyBeauty.Application.Contracts.csproj" />
         <Project Path="src/Ieh.OwneyBeauty.HttpApi/Ieh.OwneyBeauty.HttpApi.csproj" />
         <Project Path="src/Ieh.OwneyBeauty.HttpApi.Client/Ieh.OwneyBeauty.HttpApi.Client.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.Infrastructure/Ieh.OwneyBeauty.Infrastructure.csproj" />
         <Project Path="src/Ieh.OwneyBeauty.HttpApi.Host/Ieh.OwneyBeauty.HttpApi.Host.csproj" />
+        <Project Path="src/Ieh.OwneyBeauty.Worker/Ieh.OwneyBeauty.Worker.csproj" />
         <Project Path="src/Ieh.OwneyBeauty.DbMigrator/Ieh.OwneyBeauty.DbMigrator.csproj" />
     </Folder>
     <Folder Name="/test/">
+        <Project Path="test/Ieh.OwneyBeauty.ArchitectureTests/Ieh.OwneyBeauty.ArchitectureTests.csproj" />
         <Project Path="test/Ieh.OwneyBeauty.Application.Tests/Ieh.OwneyBeauty.Application.Tests.csproj" />
         <Project Path="test/Ieh.OwneyBeauty.EntityFrameworkCore.Tests/Ieh.OwneyBeauty.EntityFrameworkCore.Tests.csproj" />
         <Project Path="test/Ieh.OwneyBeauty.TestBase/Ieh.OwneyBeauty.TestBase.csproj" />

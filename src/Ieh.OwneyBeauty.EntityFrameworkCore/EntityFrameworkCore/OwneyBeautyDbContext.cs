@@ -1,7 +1,16 @@
+using Ieh.OwneyBeauty.Accounts.EntityFrameworkCore;
+using Ieh.OwneyBeauty.Accounts.Legal;
+using Ieh.OwneyBeauty.Accounts.Profiles;
+using Ieh.OwneyBeauty.Accounts.Verification;
+using Ieh.OwneyBeauty.Platform.Auditing;
+using Ieh.OwneyBeauty.Platform.Currencies;
+using Ieh.OwneyBeauty.Platform.EntityFrameworkCore;
+using Ieh.OwneyBeauty.Platform.Geography;
+using Ieh.OwneyBeauty.Platform.Idempotency;
+using Ieh.OwneyBeauty.Platform.Taxes;
 using Microsoft.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.DistributedEvents;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
-using Ieh.OwneyBeauty.Authors;
-using Ieh.OwneyBeauty.Books;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.Data;
@@ -21,17 +30,38 @@ namespace Ieh.OwneyBeauty.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
+[ReplaceDbContext(typeof(IPlatformDbContext))]
+[ReplaceDbContext(typeof(IAccountsDbContext))]
 [ConnectionStringName("Default")]
 public class OwneyBeautyDbContext :
     AbpDbContext<OwneyBeautyDbContext>,
     ITenantManagementDbContext,
-    IIdentityDbContext
+    IIdentityDbContext,
+    IPlatformDbContext,
+    IAccountsDbContext,
+    IHasEventOutbox,
+    IHasEventInbox
 {
-    /* Add DbSet properties for your Aggregate Roots / Entities here. */
+    /* Los módulos de negocio definen sus entidades y configuración; aquí solo se componen
+     * para que todo el monolito comparta transacción, migraciones y outbox. */
 
-    public DbSet<Author> Authors { get; set; }
+    // Platform
+    public DbSet<Province> Provinces { get; set; }
+    public DbSet<Municipality> Municipalities { get; set; }
+    public DbSet<Currency> Currencies { get; set; }
+    public DbSet<TaxRate> TaxRates { get; set; }
+    public DbSet<IdempotencyRecord> IdempotencyRecords { get; set; }
+    public DbSet<BusinessAuditEvent> BusinessAuditEvents { get; set; }
 
-    public DbSet<Book> Books { get; set; }
+    // Accounts
+    public DbSet<AccountProfile> AccountProfiles { get; set; }
+    public DbSet<VerificationChallenge> VerificationChallenges { get; set; }
+    public DbSet<LegalDocument> LegalDocuments { get; set; }
+    public DbSet<ConsentRecord> ConsentRecords { get; set; }
+
+    // Eventos distribuidos (outbox/inbox)
+    public DbSet<OutgoingEventRecord> OutgoingEvents { get; set; }
+    public DbSet<IncomingEventRecord> IncomingEvents { get; set; }
 
     #region Entities from the modules
 
@@ -83,24 +113,12 @@ public class OwneyBeautyDbContext :
         builder.ConfigureOpenIddict();
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
+        builder.ConfigureEventOutbox();
+        builder.ConfigureEventInbox();
 
-        builder.Entity<Author>(b =>
-        {
-            b.ToTable(OwneyBeautyConsts.DbTablePrefix + "Authors",
-                OwneyBeautyConsts.DbSchema);
-            b.ConfigureByConvention(); //auto configure for the base class props
-            b.Property(x => x.Name).IsRequired().HasMaxLength(AuthorConsts.MaxNameLength);
-            b.Property(x => x.ShortBio).HasMaxLength(AuthorConsts.MaxShortBioLength);
-        });
-
-        builder.Entity<Book>(b =>
-        {
-            b.ToTable(OwneyBeautyConsts.DbTablePrefix + "Books",
-                OwneyBeautyConsts.DbSchema);
-            b.ConfigureByConvention(); //auto configure for the base class props
-            b.Property(x => x.Name).IsRequired().HasMaxLength(128);
-            b.HasOne<Author>().WithMany().HasForeignKey(x => x.AuthorId).IsRequired();
-        });
+        /* Módulos de Owney (cada uno en su esquema) */
+        builder.ConfigurePlatform();
+        builder.ConfigureAccounts();
 
         /* Configure your own tables/entities inside here */
 

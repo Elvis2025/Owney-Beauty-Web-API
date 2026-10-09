@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/wwwroot/libs/
+**/Logs/
+**/appsettings.secrets.json
+**/*.pfx
+**/.vs/
+**/.vscode/
+**/.idea/
+.git/
+.github/
+docs/
+test/
+tmp/
+*.md

@@ -13,7 +13,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using OpenIddict.Validation.AspNetCore;
 using OpenIddict.Server.AspNetCore;
+using Ieh.OwneyBeauty.Accounts;
 using Ieh.OwneyBeauty.EntityFrameworkCore;
+using Ieh.OwneyBeauty.Infrastructure;
+using Ieh.OwneyBeauty.Platform;
+using Microsoft.AspNetCore.DataProtection;
+using StackExchange.Redis;
 using Ieh.OwneyBeauty.MultiTenancy;
 using Ieh.OwneyBeauty.HealthChecks;
 using Microsoft.OpenApi;
@@ -52,7 +57,8 @@ namespace Ieh.OwneyBeauty;
     typeof(OwneyBeautyEntityFrameworkCoreModule),
     typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpSwashbuckleModule),
-    typeof(AbpAspNetCoreSerilogModule)
+    typeof(AbpAspNetCoreSerilogModule),
+    typeof(OwneyBeautyInfrastructureModule)
     )]
 public class OwneyBeautyHttpApiHostModule : AbpModule
 {
@@ -71,6 +77,13 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
             });
         });
 
+        // ACC-F05 / OB-47-003/004: access token corto y refresh token rotativo (OpenIddict rota en cada uso).
+        PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
+        {
+            serverBuilder.SetAccessTokenLifetime(TimeSpan.FromMinutes(configuration.GetValue("AuthServer:AccessTokenLifetimeMinutes", 15)));
+            serverBuilder.SetRefreshTokenLifetime(TimeSpan.FromDays(configuration.GetValue("AuthServer:RefreshTokenLifetimeDays", 14)));
+        });
+
         if (!hostingEnvironment.IsDevelopment())
         {
             PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
@@ -80,7 +93,20 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
 
             PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
             {
-                serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", configuration["AuthServer:CertificatePassPhrase"]!);
+                var passPhrase = configuration["AuthServer:CertificatePassPhrase"]!;
+                var certificateBase64 = configuration["AuthServer:CertificateBase64"];
+                if (!string.IsNullOrWhiteSpace(certificateBase64))
+                {
+                    // Railway/contenedores: el .pfx llega como variable de entorno en base64 (DEV-F03).
+                    var certificate = X509CertificateLoader.LoadPkcs12(Convert.FromBase64String(certificateBase64), passPhrase, X509KeyStorageFlags.EphemeralKeySet);
+                    serverBuilder.AddSigningCertificate(certificate);
+                    serverBuilder.AddEncryptionCertificate(certificate);
+                }
+                else
+                {
+                    serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", passPhrase);
+                }
+
                 serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
             });
         }
@@ -127,6 +153,24 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
         ConfigureSwagger(context, configuration);
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
+        ConfigureDataProtection(context, configuration);
+        context.Services.AddOwneyRateLimiting(configuration);
+        context.Services.AddHsts(options =>
+        {
+            options.MaxAge = TimeSpan.FromDays(365);
+            options.IncludeSubDomains = true;
+        });
+    }
+
+    private static void ConfigureDataProtection(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        var dataProtection = context.Services.AddDataProtection().SetApplicationName("OwneyBeauty");
+        if (OwneyBeautyInfrastructureModule.IsRedisEnabled(configuration))
+        {
+            // Las claves sobreviven a reinicios y se comparten entre réplicas (PLT-F10).
+            var redis = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]!);
+            dataProtection.PersistKeysToStackExchangeRedis(redis, "Owney:DataProtection-Keys");
+        }
     }
 
     private void ConfigureStudio(IHostEnvironment hostingEnvironment)
@@ -208,6 +252,19 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
             options.ConventionalControllers.Create(typeof(OwneyBeautyApplicationModule).Assembly);
+
+            // Cada módulo expone su API bajo su propio prefijo y nombre de servicio remoto
+            // (lo usan los proxies generados por `abp generate-proxy -m <Módulo>`).
+            options.ConventionalControllers.Create(typeof(PlatformApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "platform";
+                opts.RemoteServiceName = "Platform";
+            });
+            options.ConventionalControllers.Create(typeof(AccountsApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "accounts";
+                opts.RemoteServiceName = "Accounts";
+            });
         });
     }
 
@@ -260,6 +317,7 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
         var env = context.GetEnvironment();
 
         app.UseForwardedHeaders();
+        app.UseCorrelationId();
 
         if (env.IsDevelopment())
         {
@@ -271,6 +329,7 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
         if (!env.IsDevelopment())
         {
             app.UseErrorPage();
+            app.UseHsts();
         }
 
         app.UseRouting();
@@ -286,9 +345,11 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
             app.UseMultiTenancy();
         }
 
+        app.UseRateLimiter();
         app.UseUnitOfWork();
         app.UseDynamicClaims();
         app.UseAuthorization();
+        app.UseMiddleware<IdempotencyMiddleware>();
 
         app.UseSwagger();
         app.UseAbpSwaggerUI(options =>

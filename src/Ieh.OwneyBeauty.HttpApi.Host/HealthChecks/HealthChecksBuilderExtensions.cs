@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -14,7 +14,13 @@ public static class HealthChecksBuilderExtensions
     {
         // Add your health checks here
         var healthChecksBuilder = services.AddHealthChecks();
-        healthChecksBuilder.AddCheck<OwneyBeautyDatabaseCheck>("OwneyBeauty DbContext Check", tags: new string[] { "database" });
+        healthChecksBuilder.AddCheck<OwneyBeautyDatabaseCheck>("OwneyBeauty DbContext Check", tags: new string[] { "database", "ready" });
+
+        var redisConfiguration = services.GetConfiguration();
+        if (OwneyBeautyInfrastructureModule.IsRedisEnabled(redisConfiguration))
+        {
+            healthChecksBuilder.AddRedis(redisConfiguration["Redis:Configuration"]!, name: "Redis", tags: new[] { "redis", "ready" });
+        }
 
         services.ConfigureHealthCheckEndpoint("/health-status");
 
@@ -47,6 +53,8 @@ public static class HealthChecksBuilderExtensions
         {
             options.EndpointConfigureActions.Add(endpointContext =>
             {
+                // Liveness: el proceso responde (sin consultar dependencias). Readiness: path configurado.
+                endpointContext.Endpoints.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
                 endpointContext.Endpoints.MapHealthChecks(
                     new PathString(path.EnsureStartsWith('/')),
                     new HealthCheckOptions

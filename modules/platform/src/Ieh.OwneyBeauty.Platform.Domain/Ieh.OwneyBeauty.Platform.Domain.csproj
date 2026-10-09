@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../../common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Ieh.OwneyBeauty.Platform.Domain</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Ieh.OwneyBeauty.Platform.Domain.Shared/Ieh.OwneyBeauty.Platform.Domain.Shared.csproj" />
+    <ProjectReference Include="../../../../shared/Ieh.OwneyBeauty.SharedKernel/Ieh.OwneyBeauty.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Ddd.Domain" Version="10.6.0" />
+    <PackageReference Include="Volo.Abp.Caching" Version="10.6.0" />
+    <PackageReference Include="Volo.Abp.Auditing" Version="10.6.0" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Domain" Version="10.6.0" />
+  </ItemGroup>
+
+</Project>

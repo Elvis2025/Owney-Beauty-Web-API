@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
 
@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Domain/Ieh.OwneyBeauty.Platform.Domain.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain/Ieh.OwneyBeauty.Accounts.Domain.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.Domain.Shared\Ieh.OwneyBeauty.Domain.Shared.csproj" />
   </ItemGroup>
 

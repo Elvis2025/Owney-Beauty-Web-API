@@ -22,6 +22,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.9" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="10.0.9" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +45,7 @@
     <ProjectReference Include="..\Ieh.OwneyBeauty.Application\Ieh.OwneyBeauty.Application.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.HttpApi\Ieh.OwneyBeauty.HttpApi.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.EntityFrameworkCore\Ieh.OwneyBeauty.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../Ieh.OwneyBeauty.Infrastructure/Ieh.OwneyBeauty.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +57,10 @@
     <Content Remove="Logs\**" />
     <EmbeddedResource Remove="Logs\**" />
     <None Remove="Logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.secrets.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 </Project>

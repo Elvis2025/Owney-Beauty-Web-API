@@ -281,3 +281,10 @@ src/Ieh.OwneyBeauty.Blazor.Server.Tiered/Logs/*
 # IdentityServer temp files
 tempkey.rsa
 tempkey.jwk
+# Owney: secretos locales (usar variables de entorno en Railway)
+src/Ieh.OwneyBeauty.HttpApi.Host/appsettings.secrets.json
+src/Ieh.OwneyBeauty.DbMigrator/appsettings.secrets.json
+src/Ieh.OwneyBeauty.Worker/appsettings.secrets.json
+**/appsettings.*.local.json
+*.pfx
+.env

@@ -1,4 +1,8 @@
 using System;
+using Ieh.OwneyBeauty.Accounts.EntityFrameworkCore;
+using Ieh.OwneyBeauty.Platform.EntityFrameworkCore;
+using Volo.Abp.EventBus.Distributed;
+using Volo.Abp.EntityFrameworkCore.DistributedEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Uow;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
@@ -28,15 +32,14 @@ namespace Ieh.OwneyBeauty.EntityFrameworkCore;
     typeof(AbpIdentityEntityFrameworkCoreModule),
     typeof(AbpOpenIddictEntityFrameworkCoreModule),
     typeof(AbpTenantManagementEntityFrameworkCoreModule),
-    typeof(BlobStoringDatabaseEntityFrameworkCoreModule)
+    typeof(BlobStoringDatabaseEntityFrameworkCoreModule),
+    typeof(PlatformEntityFrameworkCoreModule),
+    typeof(AccountsEntityFrameworkCoreModule)
     )]
 public class OwneyBeautyEntityFrameworkCoreModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
-        // https://www.npgsql.org/efcore/release-notes/6.0.html#opting-out-of-the-new-timestamp-mapping-logic
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
         OwneyBeautyEfCoreEntityExtensionMappings.Configure();
     }
 
@@ -47,6 +50,14 @@ public class OwneyBeautyEntityFrameworkCoreModule : AbpModule
                 /* Remove "includeAllEntities: true" to create
                  * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
+        });
+
+        /* PLT-F09: los eventos distribuidos se guardan en la misma transacción (outbox) y se
+         * procesan una sola vez (inbox). El Worker los publica y ejecuta los handlers. */
+        Configure<AbpDistributedEventBusOptions>(options =>
+        {
+            options.Outboxes.Configure(config => { config.UseDbContext<OwneyBeautyDbContext>(); });
+            options.Inboxes.Configure(config => { config.UseDbContext<OwneyBeautyDbContext>(); });
         });
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)

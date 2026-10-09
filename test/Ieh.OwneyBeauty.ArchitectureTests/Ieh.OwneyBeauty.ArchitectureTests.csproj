@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Ieh.OwneyBeauty.ArchitectureTests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Domain.Shared/Ieh.OwneyBeauty.Platform.Domain.Shared.csproj" />
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Domain/Ieh.OwneyBeauty.Platform.Domain.csproj" />
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Application.Contracts/Ieh.OwneyBeauty.Platform.Application.Contracts.csproj" />
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Application/Ieh.OwneyBeauty.Platform.Application.csproj" />
+    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.EntityFrameworkCore/Ieh.OwneyBeauty.Platform.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain.Shared/Ieh.OwneyBeauty.Accounts.Domain.Shared.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain/Ieh.OwneyBeauty.Accounts.Domain.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application.Contracts/Ieh.OwneyBeauty.Accounts.Application.Contracts.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application/Ieh.OwneyBeauty.Accounts.Application.csproj" />
+    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../shared/Ieh.OwneyBeauty.SharedKernel/Ieh.OwneyBeauty.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

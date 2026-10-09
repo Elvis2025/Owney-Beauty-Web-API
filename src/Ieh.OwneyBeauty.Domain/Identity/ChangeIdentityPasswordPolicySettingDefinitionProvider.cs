@@ -3,32 +3,32 @@ using Volo.Abp.Settings;
 
 namespace Ieh.OwneyBeauty.Identity;
 
+/// <summary>
+/// ACC-M04: política de contraseñas y bloqueo de Owney.
+/// Mínimo 8 caracteres con al menos un dígito y una minúscula; bloqueo de 15 minutos tras 5 intentos fallidos.
+/// Todos los valores se pueden ajustar desde Administración sin redesplegar.
+/// </summary>
 public class ChangeIdentityPasswordPolicySettingDefinitionProvider : SettingDefinitionProvider
 {
     public override void Define(ISettingDefinitionContext context)
     {
-        var requireNonAlphanumeric = context.GetOrNull(IdentitySettingNames.Password.RequireNonAlphanumeric);
-        if (requireNonAlphanumeric != null)
-        {
-            requireNonAlphanumeric.DefaultValue = false.ToString();
-        }
+        SetDefault(context, IdentitySettingNames.Password.RequiredLength, "8");
+        SetDefault(context, IdentitySettingNames.Password.RequireDigit, true.ToString());
+        SetDefault(context, IdentitySettingNames.Password.RequireLowercase, true.ToString());
+        SetDefault(context, IdentitySettingNames.Password.RequireUppercase, false.ToString());
+        SetDefault(context, IdentitySettingNames.Password.RequireNonAlphanumeric, false.ToString());
 
-        var requireLowercase = context.GetOrNull(IdentitySettingNames.Password.RequireLowercase);
-        if (requireLowercase != null)
-        {
-            requireLowercase.DefaultValue = false.ToString();
-        }
+        SetDefault(context, IdentitySettingNames.Lockout.AllowedForNewUsers, true.ToString());
+        SetDefault(context, IdentitySettingNames.Lockout.MaxFailedAccessAttempts, "5");
+        SetDefault(context, IdentitySettingNames.Lockout.LockoutDuration, "900");
+    }
 
-        var requireUppercase = context.GetOrNull(IdentitySettingNames.Password.RequireUppercase);
-        if (requireUppercase != null)
+    private static void SetDefault(ISettingDefinitionContext context, string name, string value)
+    {
+        var definition = context.GetOrNull(name);
+        if (definition != null)
         {
-            requireUppercase.DefaultValue = false.ToString();
-        }
-
-        var requireDigit = context.GetOrNull(IdentitySettingNames.Password.RequireDigit);
-        if (requireDigit != null)
-        {
-            requireDigit.DefaultValue = false.ToString();
+            definition.DefaultValue = value;
         }
     }
 }
