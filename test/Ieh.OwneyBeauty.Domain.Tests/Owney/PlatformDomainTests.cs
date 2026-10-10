@@ -1,11 +1,9 @@
 using System;
-using Ieh.OwneyBeauty.Platform;
-using Ieh.OwneyBeauty.Platform.Currencies;
-using Ieh.OwneyBeauty.Platform.Idempotency;
-using Ieh.OwneyBeauty.Platform.Taxes;
 using Shouldly;
 using Volo.Abp;
 using Xunit;
+using Ieh.OwneyBeauty.Modules.Platform;
+using Ieh.OwneyBeauty.Modules.Platform.Models;
 
 namespace Ieh.OwneyBeauty.Owney;
 

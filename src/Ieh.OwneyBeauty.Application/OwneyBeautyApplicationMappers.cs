@@ -1,5 +1,5 @@
 namespace Ieh.OwneyBeauty;
 
-/* Los mappers (Mapperly) de cada módulo viven en el proyecto Application de ese módulo.
- * Aquí solo van mappers del host, si llegan a ser necesarios.
+/* Los mappers (Mapperly) viven junto a su caso de uso: Modules/<Módulo>/<Funcionalidad>/Mappers.
+ * Aquí solo van mappers transversales del host, si llegan a ser necesarios.
  */

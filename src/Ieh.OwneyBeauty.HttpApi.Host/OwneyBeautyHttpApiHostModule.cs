@@ -13,10 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using OpenIddict.Validation.AspNetCore;
 using OpenIddict.Server.AspNetCore;
-using Ieh.OwneyBeauty.Accounts;
 using Ieh.OwneyBeauty.EntityFrameworkCore;
 using Ieh.OwneyBeauty.Infrastructure;
-using Ieh.OwneyBeauty.Platform;
 using Microsoft.AspNetCore.DataProtection;
 using StackExchange.Redis;
 using Ieh.OwneyBeauty.MultiTenancy;
@@ -247,23 +245,32 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
         }
     }
 
+    /// <summary>Módulos de negocio (carpetas Modules/&lt;Módulo&gt; en cada capa).</summary>
+    private static readonly string[] OwneyModules = { "Platform", "Accounts" };
+
     private void ConfigureConventionalControllers()
     {
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
-            options.ConventionalControllers.Create(typeof(OwneyBeautyApplicationModule).Assembly);
+            var application = typeof(OwneyBeautyApplicationModule).Assembly;
 
-            // Cada módulo expone su API bajo su propio prefijo y nombre de servicio remoto
-            // (lo usan los proxies generados por `abp generate-proxy -m <Módulo>`).
-            options.ConventionalControllers.Create(typeof(PlatformApplicationModule).Assembly, opts =>
+            // Cada carpeta Modules/<Módulo> expone su API bajo su propio prefijo y nombre de servicio remoto
+            // (/api/platform/..., /api/accounts/...; lo usan los proxies de `abp generate-proxy -m <Módulo>`).
+            foreach (var module in OwneyModules)
             {
-                opts.RootPath = "platform";
-                opts.RemoteServiceName = "Platform";
-            });
-            options.ConventionalControllers.Create(typeof(AccountsApplicationModule).Assembly, opts =>
+                var ns = $"Ieh.OwneyBeauty.Modules.{module}.";
+                options.ConventionalControllers.Create(application, opts =>
+                {
+                    opts.RootPath = module.ToLowerInvariant();
+                    opts.RemoteServiceName = module;
+                    opts.TypePredicate = type => type.Namespace?.StartsWith(ns, StringComparison.Ordinal) == true;
+                });
+            }
+
+            // Servicios del host que no pertenecen a un módulo (/api/app/...).
+            options.ConventionalControllers.Create(application, opts =>
             {
-                opts.RootPath = "accounts";
-                opts.RemoteServiceName = "Accounts";
+                opts.TypePredicate = type => type.Namespace?.StartsWith("Ieh.OwneyBeauty.Modules.", StringComparison.Ordinal) != true;
             });
         });
     }

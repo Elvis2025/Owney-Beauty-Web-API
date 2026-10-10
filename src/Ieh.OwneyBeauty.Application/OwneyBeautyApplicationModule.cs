@@ -1,5 +1,3 @@
-using Ieh.OwneyBeauty.Accounts;
-using Ieh.OwneyBeauty.Platform;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.Account;
@@ -21,10 +19,13 @@ namespace Ieh.OwneyBeauty;
     typeof(AbpAccountApplicationModule),
     typeof(AbpTenantManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule),
-    typeof(PlatformApplicationModule),
-    typeof(AccountsApplicationModule)
+    typeof(AbpMapperlyModule)
     )]
 public class OwneyBeautyApplicationModule : AbpModule
 {
-
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        // Registra los mappers de Mapperly de todos los módulos (Modules/*/*/Mappers).
+        context.Services.AddMapperlyObjectMapper<OwneyBeautyApplicationModule>();
+    }
 }

@@ -9,8 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Application.Contracts/Ieh.OwneyBeauty.Platform.Application.Contracts.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application.Contracts/Ieh.OwneyBeauty.Accounts.Application.Contracts.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.Domain.Shared\Ieh.OwneyBeauty.Domain.Shared.csproj" />
   </ItemGroup>
   

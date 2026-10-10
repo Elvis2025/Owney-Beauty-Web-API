@@ -5,9 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Ieh.OwneyBeauty.Platform;
-using Ieh.OwneyBeauty.Platform.Idempotency;
-using Ieh.OwneyBeauty.Platform.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -18,6 +15,9 @@ using Volo.Abp.Settings;
 using Volo.Abp.Timing;
 using Volo.Abp.Uow;
 using Volo.Abp.Users;
+using Ieh.OwneyBeauty.Localization;
+using Ieh.OwneyBeauty.Modules.Platform;
+using Ieh.OwneyBeauty.Modules.Platform.Models;
 
 namespace Ieh.OwneyBeauty.Infrastructure;
 
@@ -43,7 +43,7 @@ public class IdempotencyMiddleware : IMiddleware, ITransientDependency
     private readonly IClock _clock;
     private readonly IGuidGenerator _guidGenerator;
     private readonly ISettingProvider _settingProvider;
-    private readonly IStringLocalizer<PlatformResource> _l;
+    private readonly IStringLocalizer<OwneyBeautyResource> _l;
     private readonly ILogger<IdempotencyMiddleware> _logger;
 
     public IdempotencyMiddleware(
@@ -53,7 +53,7 @@ public class IdempotencyMiddleware : IMiddleware, ITransientDependency
         IClock clock,
         IGuidGenerator guidGenerator,
         ISettingProvider settingProvider,
-        IStringLocalizer<PlatformResource> localizer,
+        IStringLocalizer<OwneyBeautyResource> localizer,
         ILogger<IdempotencyMiddleware> logger)
     {
         _repository = repository;

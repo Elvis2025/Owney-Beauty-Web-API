@@ -9,8 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.EntityFrameworkCore/Ieh.OwneyBeauty.Platform.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Ieh.OwneyBeauty.Domain\Ieh.OwneyBeauty.Domain.csproj" />
   </ItemGroup>
 

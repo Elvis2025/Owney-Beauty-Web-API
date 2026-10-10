@@ -1,13 +1,3 @@
-using Ieh.OwneyBeauty.Accounts.EntityFrameworkCore;
-using Ieh.OwneyBeauty.Accounts.Legal;
-using Ieh.OwneyBeauty.Accounts.Profiles;
-using Ieh.OwneyBeauty.Accounts.Verification;
-using Ieh.OwneyBeauty.Platform.Auditing;
-using Ieh.OwneyBeauty.Platform.Currencies;
-using Ieh.OwneyBeauty.Platform.EntityFrameworkCore;
-using Ieh.OwneyBeauty.Platform.Geography;
-using Ieh.OwneyBeauty.Platform.Idempotency;
-using Ieh.OwneyBeauty.Platform.Taxes;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.DistributedEvents;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
@@ -25,25 +15,25 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Ieh.OwneyBeauty.Modules.Accounts.Models;
+using Ieh.OwneyBeauty.Modules.Platform.Models;
+using Ieh.OwneyBeauty.EntityFrameworkCore.Modules.Accounts;
+using Ieh.OwneyBeauty.EntityFrameworkCore.Modules.Platform;
 
 namespace Ieh.OwneyBeauty.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
-[ReplaceDbContext(typeof(IPlatformDbContext))]
-[ReplaceDbContext(typeof(IAccountsDbContext))]
 [ConnectionStringName("Default")]
 public class OwneyBeautyDbContext :
     AbpDbContext<OwneyBeautyDbContext>,
     ITenantManagementDbContext,
     IIdentityDbContext,
-    IPlatformDbContext,
-    IAccountsDbContext,
     IHasEventOutbox,
     IHasEventInbox
 {
-    /* Los módulos de negocio definen sus entidades y configuración; aquí solo se componen
-     * para que todo el monolito comparta transacción, migraciones y outbox. */
+    /* Un solo DbContext para toda la aplicación. Cada módulo (Modules/<Módulo>) agrega aquí sus DbSet
+     * y su configuración vive en EntityFrameworkCore/Modules/<Módulo>/<Módulo>ModelBuilderExtensions.cs. */
 
     // Platform
     public DbSet<Province> Provinces { get; set; }
@@ -116,7 +106,7 @@ public class OwneyBeautyDbContext :
         builder.ConfigureEventOutbox();
         builder.ConfigureEventInbox();
 
-        /* Módulos de Owney (cada uno en su esquema) */
+        /* Módulos de Owney (cada uno en su esquema de PostgreSQL) */
         builder.ConfigurePlatform();
         builder.ConfigureAccounts();
 

@@ -1,11 +1,10 @@
 using System;
-using Ieh.OwneyBeauty.Accounts;
-using Ieh.OwneyBeauty.Accounts.Legal;
-using Ieh.OwneyBeauty.Accounts.Profiles;
-using Ieh.OwneyBeauty.Accounts.Verification;
 using Shouldly;
 using Volo.Abp;
 using Xunit;
+using Ieh.OwneyBeauty.Modules.Accounts;
+using Ieh.OwneyBeauty.Modules.Accounts.Enums;
+using Ieh.OwneyBeauty.Modules.Accounts.Models;
 
 namespace Ieh.OwneyBeauty.Owney;
 

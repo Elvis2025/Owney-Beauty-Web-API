@@ -1,14 +1,15 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Ieh.OwneyBeauty.Platform;
-using Ieh.OwneyBeauty.Platform.Currencies;
-using Ieh.OwneyBeauty.Platform.Geography;
-using Ieh.OwneyBeauty.Platform.Taxes;
 using Shouldly;
 using Volo.Abp;
 using Volo.Abp.Modularity;
 using Xunit;
+using Ieh.OwneyBeauty.Modules.Platform;
+using Ieh.OwneyBeauty.Modules.Platform.Currencies.Service;
+using Ieh.OwneyBeauty.Modules.Platform.Geography.Dto;
+using Ieh.OwneyBeauty.Modules.Platform.Geography.Service;
+using Ieh.OwneyBeauty.Modules.Platform.TaxRates.Service;
 
 namespace Ieh.OwneyBeauty.Owney;
 

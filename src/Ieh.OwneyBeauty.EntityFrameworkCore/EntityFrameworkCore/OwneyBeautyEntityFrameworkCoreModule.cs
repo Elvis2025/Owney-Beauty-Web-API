@@ -1,6 +1,4 @@
 using System;
-using Ieh.OwneyBeauty.Accounts.EntityFrameworkCore;
-using Ieh.OwneyBeauty.Platform.EntityFrameworkCore;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.EntityFrameworkCore.DistributedEvents;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,9 +30,7 @@ namespace Ieh.OwneyBeauty.EntityFrameworkCore;
     typeof(AbpIdentityEntityFrameworkCoreModule),
     typeof(AbpOpenIddictEntityFrameworkCoreModule),
     typeof(AbpTenantManagementEntityFrameworkCoreModule),
-    typeof(BlobStoringDatabaseEntityFrameworkCoreModule),
-    typeof(PlatformEntityFrameworkCoreModule),
-    typeof(AccountsEntityFrameworkCoreModule)
+    typeof(BlobStoringDatabaseEntityFrameworkCoreModule)
     )]
 public class OwneyBeautyEntityFrameworkCoreModule : AbpModule
 {

@@ -1,6 +1,7 @@
-using Ieh.OwneyBeauty.Accounts;
+using Ieh.OwneyBeauty.Common;
 using Ieh.OwneyBeauty.Localization;
-using Ieh.OwneyBeauty.Platform;
+using Ieh.OwneyBeauty.Modules.Accounts;
+using Ieh.OwneyBeauty.Modules.Platform;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.FeatureManagement;
@@ -27,9 +28,7 @@ namespace Ieh.OwneyBeauty;
     typeof(AbpIdentityDomainSharedModule),
     typeof(AbpOpenIddictDomainSharedModule),
     typeof(AbpTenantManagementDomainSharedModule),
-    typeof(BlobStoringDatabaseDomainSharedModule),
-    typeof(PlatformDomainSharedModule),
-    typeof(AccountsDomainSharedModule)
+    typeof(BlobStoringDatabaseDomainSharedModule)
     )]
 public class OwneyBeautyDomainSharedModule : AbpModule
 {
@@ -63,6 +62,10 @@ public class OwneyBeautyDomainSharedModule : AbpModule
         Configure<AbpExceptionLocalizationOptions>(options =>
         {
             options.MapCodeNamespace("OwneyBeauty", typeof(OwneyBeautyResource));
+            // Códigos de error de los módulos: Owney.<Módulo>:<Código> (ver Common/OwneyErrorCodes).
+            options.MapCodeNamespace(OwneyErrorCodes.Shared.Namespace, typeof(OwneyBeautyResource));
+            options.MapCodeNamespace(PlatformErrorCodes.Namespace, typeof(OwneyBeautyResource));
+            options.MapCodeNamespace(AccountsErrorCodes.Namespace, typeof(OwneyBeautyResource));
         });
     }
 }

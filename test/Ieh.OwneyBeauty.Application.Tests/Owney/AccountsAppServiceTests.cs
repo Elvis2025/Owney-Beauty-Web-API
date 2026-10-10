@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Ieh.OwneyBeauty.Accounts;
-using Ieh.OwneyBeauty.Accounts.Legal;
-using Ieh.OwneyBeauty.Accounts.MyAccount;
-using Ieh.OwneyBeauty.Accounts.Registration;
-using Ieh.OwneyBeauty.Accounts.Verification;
 using Shouldly;
 using Volo.Abp;
 using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security.Claims;
 using Xunit;
+using Ieh.OwneyBeauty.Modules.Accounts;
+using Ieh.OwneyBeauty.Modules.Accounts.Enums;
+using Ieh.OwneyBeauty.Modules.Accounts.LegalDocuments.Dto;
+using Ieh.OwneyBeauty.Modules.Accounts.LegalDocuments.Service;
+using Ieh.OwneyBeauty.Modules.Accounts.MyAccount.Dto;
+using Ieh.OwneyBeauty.Modules.Accounts.MyAccount.Service;
+using Ieh.OwneyBeauty.Modules.Accounts.Registration.Dto;
+using Ieh.OwneyBeauty.Modules.Accounts.Registration.Service;
+using Ieh.OwneyBeauty.Modules.Accounts.Verification.Service;
 
 namespace Ieh.OwneyBeauty.Owney;
 

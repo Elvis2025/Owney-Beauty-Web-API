@@ -1,5 +1,3 @@
-using Ieh.OwneyBeauty.Accounts;
-using Ieh.OwneyBeauty.Platform;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ieh.OwneyBeauty.Localization;
@@ -19,6 +17,7 @@ using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Emailing;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
+using Volo.Abp.Sms;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.Timing;
 
@@ -38,8 +37,7 @@ namespace Ieh.OwneyBeauty;
     typeof(AbpOpenIddictDomainModule),
     typeof(AbpTenantManagementDomainModule),
     typeof(BlobStoringDatabaseDomainModule),
-    typeof(PlatformDomainModule),
-    typeof(AccountsDomainModule)
+    typeof(AbpSmsModule)
     )]
 public class OwneyBeautyDomainModule : AbpModule
 {
@@ -55,9 +53,6 @@ public class OwneyBeautyDomainModule : AbpModule
         {
             options.Kind = DateTimeKind.Utc;
         });
-
-
-
 #if DEBUG
         context.Services.Replace(ServiceDescriptor.Singleton<IEmailSender, NullEmailSender>());
 #endif

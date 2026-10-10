@@ -1,8 +1,8 @@
 using System;
-using Ieh.OwneyBeauty.SharedKernel;
 using Shouldly;
 using Volo.Abp;
 using Xunit;
+using Ieh.OwneyBeauty.Common;
 
 namespace Ieh.OwneyBeauty.Owney;
 

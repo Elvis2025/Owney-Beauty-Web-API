@@ -79,61 +79,50 @@ Todo lo que no forma parte de este ciclo queda después del MVP.
 
 ### 2.1 Estructura de la solución
 
+Una sola solución ABP 10 por capas (plantilla estándar). **Los módulos no son proyectos aparte**: cada módulo es una carpeta `Modules/<Módulo>` dentro de cada capa (mismo patrón que Voucher Warehouse). Detalle y pasos para crear un módulo: `docs/Owney_Beauty_Estructura_Modulos.md`.
+
 ```
 Owney Beauty Web API/
-├─ src/                                   ← "Host" (aplicación que compone módulos)
-│  ├─ Ieh.OwneyBeauty.Domain.Shared       ← localización, constantes globales
-│  ├─ Ieh.OwneyBeauty.Domain              ← seeds globales, roles, OpenIddict
-│  ├─ Ieh.OwneyBeauty.Application(.Contracts)
-│  ├─ Ieh.OwneyBeauty.EntityFrameworkCore ← DbContext del host (Identity, ABP modules)
-│  ├─ Ieh.OwneyBeauty.HttpApi.Host        ← API (stateless)
-│  ├─ Ieh.OwneyBeauty.Worker              ← NUEVO: jobs + consumidores de eventos
-│  └─ Ieh.OwneyBeauty.DbMigrator          ← migra TODOS los DbContext + seeds
-├─ shared/
-│  └─ Ieh.OwneyBeauty.SharedKernel        ← Money, Address, GeoPoint, DateRange, Idempotency, Outbox helpers
-├─ modules/                              ← un directorio por módulo (27)
-│  ├─ catalog/
-│  │  ├─ src/
-│  │  │  ├─ Ieh.OwneyBeauty.Catalog.Domain.Shared      ← enums, consts, ETOs, error codes
-│  │  │  ├─ Ieh.OwneyBeauty.Catalog.Domain             ← aggregates, domain services, repos (interfaces)
-│  │  │  ├─ Ieh.OwneyBeauty.Catalog.Application.Contracts ← DTOs, IAppServices, IIntegrationServices
-│  │  │  ├─ Ieh.OwneyBeauty.Catalog.Application        ← casos de uso, Mapperly, handlers
-│  │  │  └─ Ieh.OwneyBeauty.Catalog.EntityFrameworkCore← CatalogDbContext (schema "catalog")
-│  │  └─ test/Ieh.OwneyBeauty.Catalog.Tests
-│  ├─ bookings/ … scheduling/ … payments/ …
+├─ src/
+│  ├─ Ieh.OwneyBeauty.Domain.Shared        ← Common/ + Modules/<Módulo>/ (consts, errores, Enums/, Events/) + localización única
+│  ├─ Ieh.OwneyBeauty.Domain               ← Common/ (Money, GeoPoint…) + Modules/<Módulo>/ (Models/, Managers/, Data/, Settings/)
+│  ├─ Ieh.OwneyBeauty.Application.Contracts← Modules/<Módulo>/<Funcionalidad>/ (Dto/, Service/) + permisos del módulo
+│  ├─ Ieh.OwneyBeauty.Application          ← Modules/<Módulo>/<Funcionalidad>/ (Service/, Mappers/)
+│  ├─ Ieh.OwneyBeauty.EntityFrameworkCore  ← un DbContext + Modules/<Módulo>/<Módulo>ModelBuilderExtensions (esquema por módulo)
+│  ├─ Ieh.OwneyBeauty.HttpApi.Host         ← API (stateless); /api/<módulo>/... por convención
+│  ├─ Ieh.OwneyBeauty.Infrastructure       ← Redis, OpenTelemetry (compartido por Host y Worker)
+│  ├─ Ieh.OwneyBeauty.Worker               ← jobs + outbox/inbox de eventos
+│  └─ Ieh.OwneyBeauty.DbMigrator           ← migraciones + seeds
 └─ test/
-   └─ Ieh.OwneyBeauty.ArchitectureTests   ← reglas de dependencia automatizadas
+   └─ Ieh.OwneyBeauty.ArchitectureTests    ← reglas entre carpetas de módulos, automatizadas
 ```
 
-> **Ejemplo:** `modules/content/`, `modules/feed/`, `modules/bookings/`…
+> **Ejemplo:** el módulo Content tendrá `src/Ieh.OwneyBeauty.Domain/Modules/Content/Models/Post.cs`, `src/Ieh.OwneyBeauty.Application.Contracts/Modules/Content/Posts/Dto/PostDto.cs`, `src/Ieh.OwneyBeauty.Application/Modules/Content/Posts/Service/PostAppService.cs`…
 >
-> **Ejemplo:** `modules/content/`, `modules/feed/`, `modules/bookings/`…
->
-> **Creación “just-in-time”:** cada módulo se crea cuando su primer sprint empieza (no se crean 20 módulos vacíos). Se omite el proyecto `HttpApi` por módulo: se usan *Auto API Controllers* con prefijo de ruta propio (`/api/catalog/...`).
+> **Creación “just-in-time”:** las carpetas de cada módulo se crean cuando su primer sprint empieza. Las APIs salen con *Auto API Controllers* bajo el prefijo del módulo (`/api/content/...`).
 
 ### 2.2 Reglas de dependencia (verificadas por `ArchitectureTests`)
 
 ```mermaid
 flowchart LR
-  subgraph ModuloA[Módulo A]
-    A_App[Application] --> A_Dom[Domain] --> A_DS[Domain.Shared]
-    A_App --> A_Con[Application.Contracts] --> A_DS
-    A_EF[EntityFrameworkCore] --> A_Dom
+  subgraph ModuloA[Modules/A]
+    A_Svc[Service] --> A_Mod[Models / Managers]
+    A_Svc --> A_Dto[Dto]
   end
-  subgraph ModuloB[Módulo B]
-    B_Con[Application.Contracts]
-    B_DS[Domain.Shared - ETOs]
+  subgraph ModuloB[Modules/B]
+    B_Int[Integration]
+    B_Pub[Consts / Enums / Events]
   end
-  A_App -- "Integration Service (sync)" --> B_Con
-  A_App -- "suscribe eventos (async)" --> B_DS
+  A_Svc -- "Integration Service (sync)" --> B_Int
+  A_Svc -- "suscribe eventos (async)" --> B_Pub
 ```
 
-1. Un módulo **nunca** referencia `Domain`, `Application` ni `EntityFrameworkCore` de otro módulo.
-2. Lectura síncrona entre módulos → `I<Algo>IntegrationService` (atributo `[IntegrationService]`, no expuesto públicamente).
-3. Reacciones → **eventos distribuidos** (`*Eto` en `Domain.Shared`) publicados con **Outbox** y consumidos con **Inbox** (idempotente).
-4. Cada módulo tiene su `DbContext` y **esquema** PostgreSQL propio (`catalog`, `booking`, `payments`…). Entre módulos se guardan **IDs**, no FKs.
+1. Un módulo **solo** usa de otro sus constantes, `Enums`, `Events` e `Integration`; nunca sus `Models`, `Managers`, `Service` ni `Mappers`.
+2. Lectura síncrona entre módulos → `I<Algo>IntegrationService` en `Modules/<Módulo>/Integration` (atributo `[IntegrationService]`, no expuesto públicamente).
+3. Reacciones → **eventos distribuidos** (`*Eto` en `Modules/<Módulo>/Events`) publicados con **Outbox** y consumidos con **Inbox** (idempotente).
+4. Un único `DbContext`; cada módulo tiene su **esquema** PostgreSQL (`platform`, `accounts`, `content`…). Entre módulos se guardan **IDs**, no FKs.
 5. Datos que otro módulo necesita leer con frecuencia → **proyección local** alimentada por eventos (p. ej. Discover guarda su read model).
-6. Toda regla de negocio vive en el agregado o en un *Domain Service*; los AppServices solo orquestan.
+6. Toda regla de negocio vive en la entidad o en un *Manager* (domain service); los AppServices solo orquestan.
 
 ### 2.3 Convenciones de código
 
@@ -143,7 +132,7 @@ flowchart LR
 | Mapeo | Mapperly (`MapperBase<TOrigen,TDestino>`), una clase por dirección. |
 | Validación | Data annotations en DTO + invariantes en dominio (`Check.*`, `BusinessException`). |
 | Errores | `BusinessException` con código `Owney.<Módulo>:<Código>` localizado en es/en. |
-| Permisos | Un `PermissionDefinitionProvider` por módulo: `Owney.<Módulo>.<Recurso>.<Acción>`. |
+| Permisos | Un `PermissionDefinitionProvider` por módulo (`Modules/<Módulo>/` en Contracts): `Owney.<Módulo>.<Recurso>.<Acción>`. |
 | Paginación | Obligatoria, `MaxResultCount` ≤ 100; cursores para feeds. |
 | Concurrencia | `ConcurrencyStamp` de ABP + constraints en BD para invariantes críticas. |
 | Idempotencia | Header `Idempotency-Key` en POST de reservas, pagos, reembolsos y payouts. |
@@ -1342,7 +1331,7 @@ Eventos, Smart Pricing, IA y tienda de productos.
 
 | Área | Estado | Detalle |
 |---|---|---|
-| Arquitectura modular | ✅ | `shared/SharedKernel` + `modules/platform` + `modules/accounts`, cada uno con 5 capas y esquema propio; 32 pruebas de arquitectura |
+| Arquitectura modular | ✅ | Capas ABP estándar con carpetas `Modules/Platform` y `Modules/Accounts` en cada capa (esquema propio por módulo) + `Common/`; 14 pruebas de arquitectura |
 | Seguridad base | ✅ | Secretos fuera del repo, CORS por configuración, HSTS, PII desactivada, rate limiting, idempotencia, auditoría de negocio |
 | Identidad y cuentas (Sprint 2) | ✅ | Registro con documentos legales, verificación de correo, roles, cuenta híbrida y modos, consentimientos, tokens cortos con refresh rotativo |
 | Datos maestros | 🟡 | 32 provincias, 38 municipios de lanzamiento, DOP/USD, ITBIS 18 %. Falta el listado completo de la ONE |

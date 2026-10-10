@@ -1,14 +1,14 @@
 # Owney Beauty — Backend: ejecución local y despliegue en Railway
 
-Estado: Sprints 0–2 (Fundación + Identidad y Cuentas). Rama: `feature/sprint-0-1-2-fundacion`.
+Estado: Sprints 0–2 (Fundación + Identidad y Cuentas). Rama: `develop`. Estructura de módulos: `docs/Owney_Beauty_Estructura_Modulos.md`.
 
 ## 1. Qué hay en el backend
 
 | Pieza | Proyecto | Función |
 |---|---|---|
-| Shared Kernel | `shared/Ieh.OwneyBeauty.SharedKernel` | Money, GeoPoint, DateTimeRange, códigos de error, `IBusinessAuditLogger` |
-| Módulo Platform | `modules/platform` | Geografía RD, monedas, impuestos (ITBIS), idempotencia, auditoría de negocio, feature flags, settings |
-| Módulo Accounts | `modules/accounts` | Registro, verificación de correo/teléfono, roles, cuenta híbrida y modos, documentos legales, consentimientos, alertas de seguridad |
+| Común | `src/*/Common` | Money, GeoPoint, DateTimeRange, códigos de error, `IBusinessAuditLogger` |
+| Módulo Platform | `src/*/Modules/Platform` | Geografía RD, monedas, impuestos (ITBIS), idempotencia, auditoría de negocio, feature flags, settings |
+| Módulo Accounts | `src/*/Modules/Accounts` | Registro, verificación de correo/teléfono, roles, cuenta híbrida y modos, documentos legales, consentimientos, alertas de seguridad |
 | API | `src/Ieh.OwneyBeauty.HttpApi.Host` | REST + OAuth (OpenIddict), rate limiting, idempotencia, health checks, Swagger |
 | Worker | `src/Ieh.OwneyBeauty.Worker` | Outbox/inbox de eventos, background jobs (correos), workers periódicos |
 | Migrador | `src/Ieh.OwneyBeauty.DbMigrator` | Migraciones EF Core + datos semilla (roles, geografía, monedas, ITBIS, clientes OAuth) |

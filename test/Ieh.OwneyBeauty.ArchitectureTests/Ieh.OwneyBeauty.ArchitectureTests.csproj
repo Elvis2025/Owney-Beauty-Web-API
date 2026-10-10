@@ -10,17 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Domain.Shared/Ieh.OwneyBeauty.Platform.Domain.Shared.csproj" />
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Domain/Ieh.OwneyBeauty.Platform.Domain.csproj" />
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Application.Contracts/Ieh.OwneyBeauty.Platform.Application.Contracts.csproj" />
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.Application/Ieh.OwneyBeauty.Platform.Application.csproj" />
-    <ProjectReference Include="../../modules/platform/src/Ieh.OwneyBeauty.Platform.EntityFrameworkCore/Ieh.OwneyBeauty.Platform.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain.Shared/Ieh.OwneyBeauty.Accounts.Domain.Shared.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Domain/Ieh.OwneyBeauty.Accounts.Domain.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application.Contracts/Ieh.OwneyBeauty.Accounts.Application.Contracts.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.Application/Ieh.OwneyBeauty.Accounts.Application.csproj" />
-    <ProjectReference Include="../../modules/accounts/src/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore/Ieh.OwneyBeauty.Accounts.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="../../shared/Ieh.OwneyBeauty.SharedKernel/Ieh.OwneyBeauty.SharedKernel.csproj" />
+    <ProjectReference Include="../../src/Ieh.OwneyBeauty.Domain.Shared/Ieh.OwneyBeauty.Domain.Shared.csproj" />
+    <ProjectReference Include="../../src/Ieh.OwneyBeauty.Domain/Ieh.OwneyBeauty.Domain.csproj" />
+    <ProjectReference Include="../../src/Ieh.OwneyBeauty.Application.Contracts/Ieh.OwneyBeauty.Application.Contracts.csproj" />
+    <ProjectReference Include="../../src/Ieh.OwneyBeauty.Application/Ieh.OwneyBeauty.Application.csproj" />
+    <ProjectReference Include="../../src/Ieh.OwneyBeauty.EntityFrameworkCore/Ieh.OwneyBeauty.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +22,7 @@
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
   </ItemGroup>
 
 </Project>

@@ -1,136 +1,179 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using Ieh.OwneyBeauty.EntityFrameworkCore;
+using NetArchTest.Rules;
 using Shouldly;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.Application.Services;
+using Volo.Abp.Domain.Entities;
 using Xunit;
 
 namespace Ieh.OwneyBeauty.ArchitectureTests;
 
 /// <summary>
-/// PLT-F04 — Reglas del monolito modular (§2.2 del plan). Descubre automáticamente todos los módulos
-/// (modules/*), así que los módulos nuevos quedan cubiertos sin tocar este archivo.
-/// Para que un módulo nuevo se verifique, añada sus proyectos como referencia de este proyecto de pruebas.
+/// PLT-F04 — Reglas de la arquitectura por módulos. Cada módulo es una carpeta <c>Modules/&lt;Módulo&gt;</c>
+/// dentro de cada capa de ABP (Domain.Shared, Domain, Application.Contracts, Application, EntityFrameworkCore).
+/// Los módulos se descubren por namespace, así que los módulos nuevos quedan cubiertos sin tocar este archivo.
 /// </summary>
 public class ModuleBoundaryTests
 {
-    private static readonly Regex ModuleAssembly = new(
-        @"^Ieh\.OwneyBeauty\.(?<module>[A-Z][A-Za-z]+)\.(?<layer>Domain\.Shared|Domain|Application\.Contracts|Application|EntityFrameworkCore)$",
-        RegexOptions.Compiled);
+    private const string ModulesNamespace = "Ieh.OwneyBeauty.Modules.";
 
-    private static readonly HashSet<string> HostNames = new(StringComparer.Ordinal)
-    {
-        "Domain", "Application", "EntityFrameworkCore", "HttpApi", "SharedKernel", "Infrastructure", "Worker", "DbMigrator",
-    };
+    private static readonly Assembly DomainShared = typeof(OwneyBeautyDomainSharedModule).Assembly;
+    private static readonly Assembly Domain = typeof(OwneyBeautyDomainModule).Assembly;
+    private static readonly Assembly ApplicationContracts = typeof(OwneyBeautyApplicationContractsModule).Assembly;
+    private static readonly Assembly Application = typeof(OwneyBeautyApplicationModule).Assembly;
+    private static readonly Assembly EntityFrameworkCore = typeof(OwneyBeautyEntityFrameworkCoreModule).Assembly;
 
-    private static readonly string[] HostAssemblies =
-    {
-        "Ieh.OwneyBeauty.Domain", "Ieh.OwneyBeauty.Domain.Shared", "Ieh.OwneyBeauty.Application",
-        "Ieh.OwneyBeauty.Application.Contracts", "Ieh.OwneyBeauty.EntityFrameworkCore", "Ieh.OwneyBeauty.HttpApi",
-        "Ieh.OwneyBeauty.HttpApi.Host", "Ieh.OwneyBeauty.Infrastructure", "Ieh.OwneyBeauty.Worker",
-    };
+    private static readonly Assembly[] Layers = { DomainShared, Domain, ApplicationContracts, Application, EntityFrameworkCore };
 
-    public static IEnumerable<object[]> Modules() => LoadModuleAssemblies().Select(m => new object[] { m.Name });
+    /// <summary>
+    /// Lo único que un módulo puede usar de otro: constantes de la raíz, enums, eventos (ETOs) e
+    /// integration services (lecturas síncronas, <c>Modules/&lt;Módulo&gt;/Integration</c>).
+    /// </summary>
+    private static readonly string[] PublicSegments = { "", ".Enums", ".Events", ".Integration", ".Integration.Dto" };
+
+    public static IEnumerable<object[]> ModulePairs() =>
+        from module in DiscoverModules()
+        from other in DiscoverModules()
+        where module != other
+        select new object[] { module, other };
+
+    public static IEnumerable<object[]> Modules() => DiscoverModules().Select(m => new object[] { m });
 
     [Fact]
     public void At_least_the_known_modules_are_discovered()
     {
-        var names = LoadModuleAssemblies().Select(x => x.Module).Distinct().ToList();
-        names.ShouldContain("Platform");
-        names.ShouldContain("Accounts");
+        var modules = DiscoverModules();
+        modules.ShouldContain("Platform");
+        modules.ShouldContain("Accounts");
     }
 
     [Theory]
-    [MemberData(nameof(Modules))]
-    public void Module_does_not_depend_on_the_host(string assemblyName)
+    [MemberData(nameof(ModulePairs))]
+    public void Module_only_uses_public_contracts_of_other_modules(string module, string other)
     {
-        var references = ReferencesOf(assemblyName);
-        references.Intersect(HostAssemblies).ShouldBeEmpty($"{assemblyName} no puede depender del host");
-    }
+        var otherPublic = PublicSegments.Select(s => ModulesNamespace + other + s).ToHashSet();
+        var forbidden = ModuleTypes(other, Layers)
+            .Select(t => t.Namespace!)
+            .Where(ns => !otherPublic.Contains(ns))
+            .Distinct()
+            .ToArray();
 
-    [Theory]
-    [MemberData(nameof(Modules))]
-    public void Module_only_uses_public_contracts_of_other_modules(string assemblyName)
-    {
-        var (module, layer) = Parse(assemblyName);
-        foreach (var reference in ReferencesOf(assemblyName))
+        if (forbidden.Length == 0)
         {
-            var match = ModuleAssembly.Match(reference);
-            if (!match.Success || HostNames.Contains(match.Groups["module"].Value) || match.Groups["module"].Value == module)
-            {
-                continue;
-            }
-
-            var otherLayer = match.Groups["layer"].Value;
-            var allowed =
-                // Eventos (ETOs), enums y constantes públicas de otro módulo.
-                otherLayer == "Domain.Shared" ||
-                // Integration services: solo desde la capa Application.
-                (otherLayer == "Application.Contracts" && layer == "Application");
-
-            allowed.ShouldBeTrue($"{assemblyName} referencia {reference}: solo se permiten Domain.Shared y (desde Application) Application.Contracts de otros módulos.");
+            return;
         }
-    }
 
-    [Theory]
-    [MemberData(nameof(Modules))]
-    public void Layers_respect_ddd_direction(string assemblyName)
-    {
-        var (module, layer) = Parse(assemblyName);
-        var references = ReferencesOf(assemblyName).ToHashSet();
-        string Own(string l) => $"Ieh.OwneyBeauty.{module}.{l}";
+        var result = Types.InAssemblies(Layers)
+            .That().ResideInNamespaceStartingWith(ModulesNamespace + module + ".")
+            .Or().ResideInNamespace(ModulesNamespace + module)
+            .ShouldNot().HaveDependencyOnAny(forbidden)
+            .GetResult();
 
-        switch (layer)
-        {
-            case "Domain.Shared":
-                references.ShouldNotContain(Own("Domain"));
-                references.ShouldNotContain(Own("Application"));
-                references.ShouldNotContain(Own("EntityFrameworkCore"));
-                break;
-            case "Domain":
-                references.ShouldNotContain(Own("Application"));
-                references.ShouldNotContain(Own("Application.Contracts"));
-                references.ShouldNotContain(Own("EntityFrameworkCore"));
-                references.ShouldNotContain("Volo.Abp.EntityFrameworkCore");
-                break;
-            case "Application.Contracts":
-                references.ShouldNotContain(Own("Domain"));
-                references.ShouldNotContain(Own("EntityFrameworkCore"));
-                break;
-            case "Application":
-                references.ShouldNotContain(Own("EntityFrameworkCore"));
-                references.ShouldNotContain("Microsoft.EntityFrameworkCore");
-                break;
-        }
+        result.IsSuccessful.ShouldBeTrue(
+            $"{module} usa partes internas de {other}: {string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>())}. " +
+            "Entre módulos solo se comparten constantes, enums, eventos e integration services.");
     }
 
     [Fact]
-    public void Shared_kernel_does_not_depend_on_modules_or_host()
+    public void Common_does_not_depend_on_modules()
     {
-        var references = ReferencesOf("Ieh.OwneyBeauty.SharedKernel");
-        references.Where(r => r.StartsWith("Ieh.OwneyBeauty.", StringComparison.Ordinal)).ShouldBeEmpty();
+        var result = Types.InAssemblies(Layers)
+            .That().ResideInNamespaceStartingWith("Ieh.OwneyBeauty.Common")
+            .ShouldNot().HaveDependencyOn("Ieh.OwneyBeauty.Modules")
+            .GetResult();
+
+        result.IsSuccessful.ShouldBeTrue(string.Join(", ", result.FailingTypeNames ?? Array.Empty<string>()));
     }
 
-    private static (string Module, string Layer) Parse(string assemblyName)
+    [Fact]
+    public void Domain_and_application_do_not_depend_on_entity_framework()
     {
-        var match = ModuleAssembly.Match(assemblyName);
-        return (match.Groups["module"].Value, match.Groups["layer"].Value);
+        foreach (var assembly in new[] { DomainShared, Domain, ApplicationContracts, Application })
+        {
+            var references = assembly.GetReferencedAssemblies().Select(a => a.Name).ToList();
+            references.ShouldNotContain("Microsoft.EntityFrameworkCore", $"{assembly.GetName().Name} no puede depender de EF Core");
+            references.ShouldNotContain("Volo.Abp.EntityFrameworkCore", $"{assembly.GetName().Name} no puede depender de EF Core");
+        }
     }
 
-    private static IEnumerable<string> ReferencesOf(string assemblyName) =>
-        Assembly.Load(assemblyName).GetReferencedAssemblies().Select(a => a.Name!).ToList();
-
-    private static List<(string Name, string Module)> LoadModuleAssemblies()
+    [Theory]
+    [MemberData(nameof(Modules))]
+    public void App_services_live_in_a_Service_folder(string module)
     {
-        var directory = AppContext.BaseDirectory;
-        return Directory.GetFiles(directory, "Ieh.OwneyBeauty.*.dll")
-            .Select(Path.GetFileNameWithoutExtension)
-            .Select(name => (Name: name!, Match: ModuleAssembly.Match(name!)))
-            .Where(x => x.Match.Success && !HostNames.Contains(x.Match.Groups["module"].Value))
-            .Select(x => (x.Name, x.Match.Groups["module"].Value))
-            .OrderBy(x => x.Name)
+        ModuleTypes(module, ApplicationContracts, Application)
+            .Where(t => typeof(IApplicationService).IsAssignableFrom(t))
+            .Where(t => !t.Namespace!.EndsWith(".Service", StringComparison.Ordinal) && !t.Namespace.EndsWith(".Integration", StringComparison.Ordinal))
+            .Select(t => t.FullName)
+            .ShouldBeEmpty("Los app services y sus interfaces van en Modules/<Módulo>/<Funcionalidad>/Service");
+    }
+
+    [Theory]
+    [MemberData(nameof(Modules))]
+    public void Dtos_live_in_a_Dto_folder(string module)
+    {
+        ModuleTypes(module, ApplicationContracts)
+            .Where(t => t.IsClass && (t.Name.EndsWith("Dto", StringComparison.Ordinal) || t.Name.EndsWith("Input", StringComparison.Ordinal)
+                                      || typeof(IEntityDto).IsAssignableFrom(t)))
+            .Where(t => !t.Namespace!.EndsWith(".Dto", StringComparison.Ordinal))
+            .Select(t => t.FullName)
+            .ShouldBeEmpty("Los DTOs van en Modules/<Módulo>/<Funcionalidad>/Dto");
+    }
+
+    [Theory]
+    [MemberData(nameof(Modules))]
+    public void Mappers_live_in_a_Mappers_folder(string module)
+    {
+        ModuleTypes(module, Application)
+            .Where(t => t.Name.EndsWith("Mapper", StringComparison.Ordinal))
+            .Where(t => !t.Namespace!.EndsWith(".Mappers", StringComparison.Ordinal))
+            .Select(t => t.FullName)
+            .ShouldBeEmpty("Los mappers de Mapperly van en Modules/<Módulo>/<Funcionalidad>/Mappers");
+    }
+
+    [Theory]
+    [MemberData(nameof(Modules))]
+    public void Entities_live_in_the_Models_folder(string module)
+    {
+        ModuleTypes(module, Domain)
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(IEntity).IsAssignableFrom(t))
+            .Where(t => t.Namespace != $"{ModulesNamespace}{module}.Models")
+            .Select(t => t.FullName)
+            .ShouldBeEmpty("Las entidades van en Modules/<Módulo>/Models");
+    }
+
+    [Fact]
+    public void Each_layer_only_contains_the_folders_it_owns()
+    {
+        // DTOs y mappers nunca en Domain, Domain.Shared ni EntityFrameworkCore.
+        ModuleTypes(null, Domain, DomainShared, EntityFrameworkCore)
+            .Where(t => t.Namespace!.EndsWith(".Dto", StringComparison.Ordinal) || t.Namespace.EndsWith(".Mappers", StringComparison.Ordinal))
+            .Select(t => t.FullName)
+            .ShouldBeEmpty();
+
+        // Contracts solo contiene interfaces y DTOs, no implementaciones.
+        ModuleTypes(null, ApplicationContracts)
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(IApplicationService).IsAssignableFrom(t))
+            .Select(t => t.FullName)
+            .ShouldBeEmpty();
+    }
+
+    private static IEnumerable<Type> ModuleTypes(string? module, params Assembly[] assemblies) =>
+        assemblies.SelectMany(a => a.GetTypes())
+            .Where(t => t.Namespace is not null && !t.IsNested && !t.Name.StartsWith("<", StringComparison.Ordinal))
+            .Where(t => module is null
+                ? t.Namespace!.StartsWith(ModulesNamespace, StringComparison.Ordinal)
+                : (t.Namespace + ".").StartsWith(ModulesNamespace + module + ".", StringComparison.Ordinal));
+
+    private static List<string> DiscoverModules() =>
+        Layers.SelectMany(a => a.GetTypes())
+            .Select(t => t.Namespace)
+            .Where(ns => ns is not null && ns.StartsWith(ModulesNamespace, StringComparison.Ordinal))
+            .Select(ns => ns!.Substring(ModulesNamespace.Length).Split('.')[0])
+            .Distinct()
+            .OrderBy(x => x)
             .ToList();
-    }
 }

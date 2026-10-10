@@ -1,5 +1,3 @@
-using Ieh.OwneyBeauty.Accounts;
-using Ieh.OwneyBeauty.Platform;
 using Volo.Abp.Account;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
@@ -17,9 +15,7 @@ namespace Ieh.OwneyBeauty;
     typeof(AbpIdentityApplicationContractsModule),
     typeof(AbpAccountApplicationContractsModule),
     typeof(AbpTenantManagementApplicationContractsModule),
-    typeof(AbpPermissionManagementApplicationContractsModule),
-    typeof(PlatformApplicationContractsModule),
-    typeof(AccountsApplicationContractsModule)
+    typeof(AbpPermissionManagementApplicationContractsModule)
 )]
 public class OwneyBeautyApplicationContractsModule : AbpModule
 {

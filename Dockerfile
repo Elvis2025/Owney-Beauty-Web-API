@@ -22,8 +22,6 @@ ENV PATH="${PATH}:/root/.dotnet/tools"
 
 # Restaurar primero (capa cacheable).
 COPY common.props NuGet.Config Ieh.OwneyBeauty.slnx ./
-COPY shared/ shared/
-COPY modules/ modules/
 COPY src/ src/
 RUN dotnet restore src/Ieh.OwneyBeauty.HttpApi.Host/Ieh.OwneyBeauty.HttpApi.Host.csproj \
     && dotnet restore src/Ieh.OwneyBeauty.Worker/Ieh.OwneyBeauty.Worker.csproj \
