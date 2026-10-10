@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -20,9 +21,20 @@ public class Program
         try
         {
             Log.Information("Starting Ieh.OwneyBeauty.HttpApi.Host.");
-            var builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+            {
+                Args = args,
+                EnvironmentName = DebugEnvironment(),
+            });
+
+            // appsettings.secrets.json guarda credenciales de entornos compartidos (Railway): nunca se carga
+            // en Development, para que una sesión de depuración no toque esas bases.
+            if (!builder.Environment.IsDevelopment())
+            {
+                builder.Configuration.AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true);
+            }
+
             builder.Host
-                .AddAppSettingsSecretsJson()
                 .UseAutofac()
                 .UseSerilog((context, services, loggerConfiguration) =>
                 {
@@ -51,5 +63,21 @@ public class Program
         {
             Log.CloseAndFlush();
         }
+    }
+
+    /// <summary>
+    /// Compilado en Debug y sin ambiente explícito (DOTNET_ENVIRONMENT/ASPNETCORE_ENVIRONMENT), se usa
+    /// Development: lee appsettings.Development.json y se conecta a la base local.
+    /// </summary>
+    private static string? DebugEnvironment()
+    {
+#if DEBUG
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")) &&
+            string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+        {
+            return Environments.Development;
+        }
+#endif
+        return null;
     }
 }

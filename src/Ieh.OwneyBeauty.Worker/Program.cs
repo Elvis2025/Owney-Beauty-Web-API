@@ -33,7 +33,18 @@ public static class Program
         {
             Log.Information("Iniciando Ieh.OwneyBeauty.Worker");
             await Host.CreateDefaultBuilder(args)
-                .AddAppSettingsSecretsJson()
+                // Los appsettings se copian junto al ejecutable: así funciona igual desde VS, `dotnet run` o Docker.
+                .UseContentRoot(AppContext.BaseDirectory)
+                .UseEnvironment(DebugEnvironment() ?? EnvironmentFromVariables())
+                // appsettings.secrets.json guarda credenciales de entornos compartidos (Railway): nunca se carga
+                // en Development, para que una sesión de depuración no toque esas bases.
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    if (!context.HostingEnvironment.IsDevelopment())
+                    {
+                        config.AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true);
+                    }
+                })
                 .UseSerilog()
                 .ConfigureServices(services => services.AddHostedService<WorkerHostedService>())
                 .RunConsoleAsync();
@@ -49,6 +60,27 @@ public static class Program
             await Log.CloseAndFlushAsync();
         }
     }
+
+    /// <summary>
+    /// Compilado en Debug y sin ambiente explícito (DOTNET_ENVIRONMENT/ASPNETCORE_ENVIRONMENT), se usa
+    /// Development: lee appsettings.Development.json y se conecta a la base local.
+    /// </summary>
+    private static string? DebugEnvironment()
+    {
+#if DEBUG
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")) &&
+            string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+        {
+            return Environments.Development;
+        }
+#endif
+        return null;
+    }
+
+    private static string EnvironmentFromVariables() =>
+        Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+        ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+        ?? Environments.Production;
 }
 
 public class WorkerHostedService : IHostedService

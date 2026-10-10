@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -30,10 +32,42 @@ class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-            .AddAppSettingsSecretsJson()
+            // Los appsettings se copian junto al ejecutable: así funciona igual desde VS, `dotnet run` o Docker.
+            .UseContentRoot(AppContext.BaseDirectory)
+            .UseEnvironment(DebugEnvironment() ?? EnvironmentFromVariables())
+            // appsettings.secrets.json guarda credenciales de entornos compartidos (Railway): nunca se carga
+            // en Development, para que una sesión de depuración no toque esas bases.
+            .ConfigureAppConfiguration((context, config) =>
+            {
+                if (!context.HostingEnvironment.IsDevelopment())
+                {
+                    config.AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true);
+                }
+            })
             .ConfigureLogging((context, logging) => logging.ClearProviders())
             .ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<DbMigratorHostedService>();
             });
+
+    /// <summary>
+    /// Compilado en Debug y sin ambiente explícito (DOTNET_ENVIRONMENT/ASPNETCORE_ENVIRONMENT), se usa
+    /// Development: lee appsettings.Development.json y se conecta a la base local.
+    /// </summary>
+    private static string? DebugEnvironment()
+    {
+#if DEBUG
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")) &&
+            string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+        {
+            return Environments.Development;
+        }
+#endif
+        return null;
+    }
+
+    private static string EnvironmentFromVariables() =>
+        Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+        ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+        ?? Environments.Production;
 }

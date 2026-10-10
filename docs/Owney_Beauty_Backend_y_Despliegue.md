@@ -18,7 +18,13 @@ Endpoints: Swagger en `/swagger` · salud: `/health/live` (proceso) y `/health-s
 
 ## 2. Ejecutar en local
 
-> ⚠️ `appsettings.secrets.json` (no versionado) de `HttpApi.Host`, `DbMigrator` y `Worker` contiene la conexión a la base de **Railway**. Se carga **después** de las variables de entorno, así que mientras exista, el migrador y la API apuntan a Railway aunque definas `ConnectionStrings__Default`. Para trabajar contra una base local, renombra ese archivo o cambia su contenido.
+Compilado en **Debug** (Visual Studio o `dotnet run`), el Host, el DbMigrator y el Worker usan el ambiente **Development**:
+
+- Leen `appsettings.Development.json`, que apunta a la base local `Host=localhost;Port=55432;Database=OwneyBeauty;User ID=postgres;Password=postgres;`.
+- **No** cargan `appsettings.secrets.json` (credenciales de Railway); ese archivo solo se usa fuera de Development.
+- Si defines `DOTNET_ENVIRONMENT`/`ASPNETCORE_ENVIRONMENT`, ese valor manda. La imagen de Docker (Release) usa `Production`.
+
+> El puerto 5432 suele estar ocupado por un PostgreSQL instalado en Windows con otra contraseña; por eso la base de desarrollo usa el 55432.
 
 Base de datos local con Docker:
 
@@ -26,10 +32,10 @@ Base de datos local con Docker:
 docker run -d --name owney-pg-local -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=OwneyBeauty -p 55432:5432 postgres:16-alpine
 ```
 
-Con `appsettings.secrets.json` apuntando a `Host=localhost;Port=55432;Database=OwneyBeauty;User ID=postgres;Password=postgres;`:
+Luego, en Debug:
 
 ```bash
-dotnet run --project src/Ieh.OwneyBeauty.DbMigrator      # migra y siembra
+dotnet run --project src/Ieh.OwneyBeauty.DbMigrator      # migra y siembra (o F5 en Visual Studio)
 dotnet run --project src/Ieh.OwneyBeauty.HttpApi.Host    # API en https://localhost:44389
 dotnet test Ieh.OwneyBeauty.slnx                          # dominio + integración + arquitectura
 ```
