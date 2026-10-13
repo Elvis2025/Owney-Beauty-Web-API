@@ -1,7 +1,7 @@
-/* Dev Login Helper */
+/* Dev Login Helper: solo rellena el usuario. La contraseña no va aquí porque wwwroot se publica
+   en todos los entornos y este archivo quedaría expuesto en producción. */
 (() => {
-  const defaultAdminUsername = "admin";
-  const defaultAdminPassword = "1q2w3E*";
+  const defaultAdminUsername = "owneybeauty";
 
   const run = () => {
     if (!/\/Account\/Login\/?$/i.test(window.location.pathname)) {
@@ -11,10 +11,6 @@
     const userInput = document.querySelector(
       'input[name$="UserNameOrEmailAddress"], input[id$="UserNameOrEmailAddress"], input[name$="UserName"], input[id$="UserName"]'
     );
-    const passwordInput = document.querySelector(
-      'input[type="password"][name$="Password"], input[type="password"][id$="Password"]'
-    );
-
     const addHint = (input, text) => {
       if (!input || input.dataset.defaultHintAdded === "true") {
         return;
@@ -50,20 +46,13 @@
       if (userInput && !userInput.value) {
         userInput.value = defaultAdminUsername;
       }
-      if (passwordInput && !passwordInput.value) {
-        passwordInput.value = defaultAdminPassword;
-      }
     };
 
     addHint(userInput, `Default username: ${defaultAdminUsername}`);
-    addHint(passwordInput, `Default password: ${defaultAdminPassword}`);
 
     setTimeout(autoFillDefaults, 150);
     if (userInput) {
       userInput.addEventListener("focus", autoFillDefaults, { once: true });
-    }
-    if (passwordInput) {
-      passwordInput.addEventListener("focus", autoFillDefaults, { once: true });
     }
   };
 

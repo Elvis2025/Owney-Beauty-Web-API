@@ -1,8 +1,10 @@
+/* Logo de Owney Beauty en el tema LeptonX Lite (login, cuenta y páginas de la API). */
 :root {
     --lpx-logo: url('images/logo/leptonxlite/logo-light-thumbnail.png');
     --lpx-logo-icon: url('images/logo/leptonxlite/logo-light-thumbnail.png');
 }
 :root .abp-account-layout .lpx-brand-logo{
-    --lpx-logo: url('images/logo/leptonxlite/logo-dark-thumbnail.png');
-    background-position: left;
+    --lpx-logo: url('images/logo/leptonxlite/logo-dark.png');
+    background-position: center;
+    background-size: contain;
 }

@@ -1,11 +1,14 @@
-﻿using Volo.Abp.Identity;
-
-namespace Ieh.OwneyBeauty;
+﻿namespace Ieh.OwneyBeauty;
 
 public static class OwneyBeautyConsts
 {
     public const string DbTablePrefix = "App";
     public const string? DbSchema = null;
-    public const string AdminEmailDefaultValue = IdentityDataSeedContributor.AdminEmailDefaultValue;
-    public const string AdminPasswordDefaultValue = "1q2w3E*";
+
+    /* Administrador por defecto que se siembra en cada base de datos nueva. */
+    public const string AdminUserNameDefaultValue = "owneybeauty";
+    public const string AdminEmailDefaultValue = "owneybeauty@gmail.com";
+    public const string AdminPasswordDefaultValue = "owney24112026beauty@";
+    public const string AdminNameDefaultValue = "Owney";
+    public const string AdminSurnameDefaultValue = "Beauty";
 }

@@ -29,6 +29,6 @@ public abstract class SampleAppServiceTests<TStartupModule> : OwneyBeautyApplica
 
         //Assert
         result.TotalCount.ShouldBeGreaterThan(0);
-        result.Items.ShouldContain(u => u.UserName == "admin");
+        result.Items.ShouldContain(u => u.UserName == OwneyBeautyConsts.AdminUserNameDefaultValue);
     }
 }

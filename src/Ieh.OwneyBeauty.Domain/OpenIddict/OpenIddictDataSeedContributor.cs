@@ -114,7 +114,7 @@ public class OpenIddictDataSeedContributor : OpenIddictDataSeedContributorBase, 
                 redirectUris: redirectUris,
                 postLogoutRedirectUris: redirectUris,
                 clientUri: appClientRootUrl,
-                logoUri: "/images/clients/angular.svg"
+                logoUri: "/images/logo/owney-badge-512.png"
             );
 
             await RequirePkceAsync(appClientId!);

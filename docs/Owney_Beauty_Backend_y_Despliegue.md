@@ -40,7 +40,7 @@ dotnet run --project src/Ieh.OwneyBeauty.HttpApi.Host    # API en https://localh
 dotnet test Ieh.OwneyBeauty.slnx                          # dominio + integración + arquitectura
 ```
 
-Usuario administrador inicial: `admin` / `1q2w3E*` (**cámbialo** en cualquier entorno compartido).
+Usuario administrador inicial (lo crea el DbMigrator en cada base de datos nueva): usuario `owneybeauty`, correo `owneybeauty@gmail.com`, nombre Owney Beauty. La contraseña está en `OwneyBeautyConsts.AdminPasswordDefaultValue`. Si el usuario ya existe, el seed no cambia su contraseña ni su correo.
 
 ## 3. Despliegue en Railway
 

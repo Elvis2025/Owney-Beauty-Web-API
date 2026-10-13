@@ -106,6 +106,8 @@ public class OwneyBeautyDbMigrationService : ITransientDependency
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database seed...");
         
         await _dataSeeder.SeedAsync(new DataSeedContext(tenant?.Id)
+            .WithProperty(IdentityDataSeedContributor.AdminUserNamePropertyName,
+                OwneyBeautyConsts.AdminUserNameDefaultValue)
             .WithProperty(IdentityDataSeedContributor.AdminEmailPropertyName,
                 OwneyBeautyConsts.AdminEmailDefaultValue)
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,

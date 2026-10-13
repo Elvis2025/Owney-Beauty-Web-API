@@ -31,7 +31,7 @@ public class SampleRepositoryTests : OwneyBeautyEntityFrameworkCoreTestBase
         {
                 //Act
                 var adminUser = await _appUserRepository
-                .FirstOrDefaultAsync(u => u.UserName == "admin");
+                .FirstOrDefaultAsync(u => u.UserName == OwneyBeautyConsts.AdminUserNameDefaultValue);
 
                 //Assert
                 adminUser.ShouldNotBeNull();

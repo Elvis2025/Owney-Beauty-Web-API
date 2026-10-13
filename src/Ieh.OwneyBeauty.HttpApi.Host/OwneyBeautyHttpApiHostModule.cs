@@ -362,6 +362,9 @@ public class OwneyBeautyHttpApiHostModule : AbpModule
         app.UseAbpSwaggerUI(options =>
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "OwneyBeauty API");
+            options.DocumentTitle = "Owney Beauty API";
+            options.InjectStylesheet("/swagger-owney.css");
+            options.HeadContent += "<link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\" />";
 
             var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
             options.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);

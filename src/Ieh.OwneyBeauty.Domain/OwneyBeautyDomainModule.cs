@@ -10,6 +10,7 @@ using Volo.Abp.PermissionManagement.Identity;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.BlobStoring.Database;
 using Volo.Abp.Caching;
+using Volo.Abp.Data;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.PermissionManagement.OpenIddict;
 using Volo.Abp.AuditLogging;
@@ -43,6 +44,12 @@ public class OwneyBeautyDomainModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        // El administrador por defecto lo siembra AccountsAdminUserDataSeedContributor (usuario de Owney, no "admin" de ABP).
+        Configure<AbpDataSeedOptions>(options =>
+        {
+            options.Contributors.Remove<IdentityDataSeedContributor>();
+        });
+
         Configure<AbpMultiTenancyOptions>(options =>
         {
             options.IsEnabled = MultiTenancyConsts.IsEnabled;

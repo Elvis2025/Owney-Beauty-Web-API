@@ -1,0 +1,17 @@
+/* Marca de Owney Beauty en Swagger UI (reemplaza el logo de Swagger). */
+.swagger-ui .topbar {
+    background: #0a0a0a;
+}
+
+.swagger-ui .topbar-wrapper .link svg,
+.swagger-ui .topbar-wrapper .link img {
+    display: none;
+}
+
+.swagger-ui .topbar-wrapper .link::before {
+    content: "";
+    display: block;
+    width: 190px;
+    height: 60px;
+    background: url("/images/logo/leptonxlite/logo-dark.png") left center / contain no-repeat;
+}
